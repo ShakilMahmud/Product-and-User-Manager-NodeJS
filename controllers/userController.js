@@ -3,6 +3,20 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const User = require("../models/user")
 
+const nodemailer = require("nodemailer");
+
+const sendVerificationMail = async (name, email, userId) =>{
+    try{
+        nodemailer.createTransport({
+            //https://www.youtube.com/watch?v=IGbOi92_zFk
+        })
+
+    }catch(err){
+        console.log(err)
+    }
+
+}
+
 const registration = async (req, res) => {
     if(!req.body.name || !req.body.email || !req.body.phone || !req.body.password ){
         return res.send('Data Missing')
@@ -25,14 +39,27 @@ const registration = async (req, res) => {
     })
 
     try{
-        await createUser.save()
-        res.status(201).json({
-            "success": true,
-            "message": "Registration Successful!!",
-            data:{
-                name:createUser.name
-            }
-        })
+       const userData = await createUser.save()
+
+        if(userData){
+
+          sendVerificationMail(req.body.name, req.body.email, userData._id)
+
+            res.status(201).json({
+                "success": true,
+                "message": "Registration Successful!!",
+                data:{
+                    name:createUser.name
+                }
+            })
+        }
+        else{
+            res.status(404).json({
+                "success": true,
+                "message": "Registration Failed!!",
+            })
+        }
+        
     }
     catch(err){
         res.status(400);
