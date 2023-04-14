@@ -1,0 +1,151 @@
+<div class="container-fluid container-fluid-custom py-md-5 mb-5">
+    <main>
+      <div class="row py-md-5 text-center justify-content-center">
+  
+        <div class="col-md-12 col-lg-6 mb-6 mb-md-0">
+          <h1 class="display-2 fw-bold mb-4 position-relative home-title">
+            All Product 
+          </h1>
+          <p class="fs-4 mb-4">
+            List of all Product
+          </p>
+          <% if(data.length < 1 ){ %>
+              <a href="/dashboard/add-product" class="btn btn-primary btn-lg">Click to upload the Product!</a>
+            <% }; %>
+          
+        </div>
+        <table id="products-table" class="display">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% data.forEach(product => { %>
+              <tr>
+                <td>1<%= product.title %></td>
+                <td><%= product.brand %></td>
+                <td><%= product.category %></td>
+                <td>
+                  <button id="updateButton-<%= product.id %>" type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal" data-product='<%= JSON.stringify(product) %>' onclick="openUpdateModal('<%= product.id %>')">Update</button>
+                  <button type="button" class="btn btn-danger" onclick="deleteRow('<%= product.id %>')">Delete</button>
+      
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+
+<!-- Update modal dialog -->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateModalLabel">Update Product</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Input fields for product data -->
+        <input type="hidden" id="productId">
+        <div class="form-group">
+          <label for="titleInput">Title</label>
+          <input type="text" class="form-control" id="titleInput">
+        </div>
+        <div class="form-group">
+          <label for="brandInput">Brand</label>
+          <input type="text" class="form-control" id="brandInput">
+        </div>
+        <div class="form-group">
+          <label for="categoryInput">Category</label>
+          <input type="text" class="form-control" id="categoryInput">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="submitUpdate()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $('#products-table').DataTable();
+  });
+
+  function openUpdateModal(productId) {
+
+    const product = JSON.parse(document.getElementById(`updateButton-${productId}`).getAttribute('data-product'));
+
+    document.getElementById('productId').value = productId;
+    document.getElementById('titleInput').value = product.title;
+    document.getElementById('brandInput').value = product.brand;
+    document.getElementById('categoryInput').value = product.category;
+
+    $('#updateModal').modal('show');
+  }
+
+  function submitUpdate() {
+
+          const productId = document.getElementById('productId').value;
+          const title = document.getElementById('titleInput').value;
+          const brand = document.getElementById('brandInput').value;
+          const category = document.getElementById('categoryInput').value;
+
+          const data = {
+          id: productId,
+          title: title,
+          brand: brand,
+          category: category
+        };
+
+        $.ajax({
+          url: '/dashboard/products/' + productId,
+          method: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify(data),
+          success: function(response) {
+            location.reload();
+          },
+          error: function(xhr, status, error) {
+            console.error(error);
+          }
+        });
+          
+          $('#updateModal').modal('hide');
+  }
+
+  function deleteRow(productId) {
+  $.ajax({
+    url: '/dashboard/products/' + productId,
+    method: 'DELETE',
+    success: function(response) {
+      const row = document.querySelector(`tr[data-id="${productId}"]`);
+      if (row) {
+        row.remove();
+      }
+      location.reload();
+    },
+    error: function(xhr, status, error) {
+      console.error(error);
+    }
+  });
+}
+
+$('#updateModal').on('hide.bs.modal', function (e) {
+  $('.modal-backdrop').remove();
+});
+
+</script>
