@@ -10,6 +10,8 @@ router.get('/',async (req, res) => {
         description:"about page"
     }
     try{
+      const token = req.cookies.token;
+    if(!token)return res.redirect('/login');
         const data = await Product.find();
    
         res.render('index', {
@@ -24,10 +26,34 @@ router.get('/',async (req, res) => {
     }
     
 })
+router.get('/add-new-product',async (req, res) => {
+    const locals = {
+        title:"Nodejs about",
+        description:"about page"
+    }
+    try{
+      const token = req.cookies.token;
+    if(!token)return res.redirect('/login');
+        const data = await Product.find();
+   
+        res.render('addProduct', {
+            locals,
+            layout: '../views/layouts/subMain.ejs',
+            data: data
+        })
+
+    }catch(err){
+        console.error(err);
+        res.render('error');
+    }
+    
+})
 
 
 router.post('/add-product',async (req, res) => {
     try{
+      const token = req.cookies.token;
+    if(!token)return res.redirect('/login');
         const response = await axios.get('https://dummyjson.com/products')
         const data = response.data.products;
 
@@ -54,10 +80,38 @@ router.post('/add-product',async (req, res) => {
     }
 })
 
+router.post('/add',async (req, res) => {
+  try{
+    const token = req.cookies.token;
+  if(!token)return res.redirect('/login');
 
+  
+      const product = new Product({
+          id: req.body.id,
+          title: req.body.title,
+          description: req.body.description,   
+          price: req.body.price,   
+          discountPercentage: req.body.discountPercentage,   
+          rating: req.body.rating,   
+          stock: req.body.stock,   
+          brand: req.body.brand,   
+          category: req.body.category,   
+          thumbnail: req.body.thumbnail,   
+          images: req.body.images,   
+    
+      });
+      await product.save();
+      res.redirect("/dashboard")
+    
+  }catch(err){
+      console.log(err)
+  }
+})
 
 
 router.put('/products/:id', (req, res) => {
+  const token = req.cookies.token;
+    if(!token)return res.redirect('/login');
   const  id = req.params.id;
   let conditions = {id: id};
   
@@ -72,6 +126,8 @@ router.put('/products/:id', (req, res) => {
   });
 
 router.get('/products/:id', (req, res) => {
+  const token = req.cookies.token;
+    if(!token)return res.redirect('/login');
     const  id = req.params.id;
     let conditions = {_id: id};
     Product.findById(conditions)
@@ -84,6 +140,8 @@ router.get('/products/:id', (req, res) => {
       });
   });
 router.delete('/products/:id', (req, res) => {
+  const token = req.cookies.token;
+    if(!token) return res.redirect('/login');
     const  id = req.params.id;
     let conditions = {id: id};
     Product.findOneAndDelete(conditions)

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Product Entry Form</title>
+    <!-- Add the Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mt-5">Product Entry Form</h1>
+      <form action="/dashboard/add" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="id">Product ID:</label>
+          <input type="text" class="form-control" name="id" required>
+        </div>
+        <div class="form-group">
+          <label for="title">Title:</label>
+          <input type="text" class="form-control" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description:</label>
+          <textarea class="form-control" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="price">Price:</label>
+          <input type="number" class="form-control" name="price" required>
+        </div>
+        <div class="form-group">
+          <label for="discountPercentage">Discount Percentage:</label>
+          <input type="number" class="form-control" name="discountPercentage">
+        </div>
+        <div class="form-group">
+          <label for="rating">Rating:</label>
+          <input type="number" class="form-control" name="rating" required>
+        </div>
+        <div class="form-group">
+          <label for="stock">Stock:</label>
+          <input type="number" class="form-control" name="stock" required>
+        </div>
+        <div class="form-group">
+          <label for="brand">Brand:</label>
+          <input type="text" class="form-control" name="brand" required>
+        </div>
+        <div class="form-group">
+          <label for="category">Category:</label>
+          <input type="text" class="form-control" name="category" required>
+        </div>
+        <div class="form-group">
+          <label for="thumbnail">Thumbnail:</label>
+          <input type="text" class="form-control" name="thumbnail" required>
+        </div>
+        <div class="form-group">
+          <label for="images">Images:</label>
+          <input type="text" class="form-control" name="images" multiple>
+        </div>
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary" value="Submit">
+        </div>
+      </form>
+    </div>
+
+    <!-- Add the Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script

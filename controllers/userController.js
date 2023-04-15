@@ -5,17 +5,6 @@ const User = require("../models/user")
 
 const nodemailer = require("nodemailer");
 
-const sendVerificationMail = async (name, email, userId) =>{
-    try{
-        nodemailer.createTransport({
-            //https://www.youtube.com/watch?v=IGbOi92_zFk
-        })
-
-    }catch(err){
-        console.log(err)
-    }
-
-}
 
 const registration = async (req, res) => {
     if(!req.body.name || !req.body.email || !req.body.phone || !req.body.password ){
@@ -39,19 +28,29 @@ const registration = async (req, res) => {
     })
 
     try{
-       const userData = await createUser.save()
 
+       const userData = await createUser.save()
+   
         if(userData){
 
-          sendVerificationMail(req.body.name, req.body.email, userData._id)
-
-            res.status(201).json({
-                "success": true,
-                "message": "Registration Successful!!",
-                data:{
-                    name:createUser.name
+            const transporter =  nodemailer.createTransport({
+                service: 'hotmail',
+                auth: {
+                    user: 'shakil-nodejs@outlook.com',
+                    pass: '123!@#456'
                 }
-            })
+            });
+            
+              // send mail with defined transport object
+              let info = await transporter.sendMail({
+                from: 'shakil-nodejs@outlook.com', // sender address
+                to: req.body.email, // list of receivers
+                subject: "Email Verification", // Subject line
+                text: "Click to Verify your account", // plain text body
+                html: "<b>Hello "+req.body.name+" ,</b><br> Please click the link to verify your account.<br><a href='http://localhost:3000/verify?verify_id="+userData._id.toString()+"'>Verify</a><br>Thank You !", // html body
+              });
+            
+            res.status(201).send("Registration Successful, Please Verify Your Mail!!")
         }
         else{
             res.status(404).json({
@@ -62,26 +61,23 @@ const registration = async (req, res) => {
         
     }
     catch(err){
-        res.status(400);
-        throw new Error(err.message);
+        res.status(400).send(err.message);
     }
 }
 const login =  async (req, res) => {
     if(!req.body.email || !req.body.password){
-        res.status(400);
-        throw new Error("Email and Password both are required!")
+        return res.status(400).send("Email and Password both are required!")
     }
     const user = await User.findOne({email:req.body.email})
     if(!user){
-        res.status(404);
-        throw new Error("User is not registered!")
+        return res.status(404).send("User is not registered!")
     }
     const match = await bcrypt.compare(req.body.password, user.password)
     if(!match){
-        res.status(401);
-        throw new Error("Email or Password not matched!")
+        return res.status(401).send("Email or Password not matched!")
     }
     const verifiedStatus = await User.findOne({email:req.body.email})
+  
     if(!verifiedStatus.verified){
         return res.send("Verify Your Email First")
     }
@@ -95,7 +91,32 @@ const login =  async (req, res) => {
             res.status(500);
             throw new Error("Something went wrong!")
        }
-     res.status(201).header('auth-token', authToken).send(authToken)
+    res.cookie('token', authToken, { httpOnly: true });
+    res.cookie('user', user._id, { httpOnly: true });
+
+    //  res.status(201).header('auth-token', authToken).send(authToken)
+     res.redirect('/main-panel');
+
+}
+const resetPassword =  async (req, res) => {
+    if(!req.body.email || !req.body.new_password || !req.body.confirm_password){
+        res.status(400).send("Email and Password both are required!")
+    }
+    if(req.body.confirm_password !== req.body.new_password){
+        res.status(400).send("Password did not matched!")
+    }
+    const user = await User.findOne({email:req.body.email})
+    if(!user){
+        res.status(404).send("User is not registered!")
+    }
+    const salt = await bcrypt.genSalt(10)
+    const newHashedPassWord = await bcrypt.hash(req.body.new_password, salt)
+
+const resetPassword = User.findOneAndUpdate({email:req.body.email},newHashedPassWord )
+       if(!resetPassword){
+            res.status(500).send("Something went wrong!")
+       }
+     res.status(201).send('New Password Created')
 
 }
 
@@ -111,4 +132,4 @@ const currentUser =  (req, res) => {
 
 
 
-module.exports = { registration, login, currentUser }
+module.exports = { registration, login, currentUser, resetPassword }

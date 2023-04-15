@@ -1,0 +1,102 @@
+
+<div class="container-fluid container-fluid-custom py-md-5 mb-5">
+    <main>
+      <div class="row py-md-5 text-center justify-content-center">
+  
+        <div class="col-md-12 col-lg-6 mb-6 mb-md-0">
+          <h3 id="success-message" ></h3>
+  
+          <p class="fs-4 mb-4">
+            List of all Product
+          </p>
+          <% if(data.length < 1 ){ %>
+              <a href="/main-panel" class="btn btn-primary btn-lg">Cart is Empty Please Add Product</a>
+            <% }; %>
+          
+        </div>
+        <table id="products-table" class="display">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>description</th>
+              <th>price</th>
+              <th>discountPercentage</th>
+              <th>stock</th>
+              <th>brand</th>
+              <th>category</th>
+              <th>thumbnail</th>
+              <th>images</th>
+              <th>Quantity</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% data.forEach(product => { %>
+              <tr>
+                <td><%= product.product_id.title %></td>
+                <td><%= product.product_id.description %></td>
+                <td><%= product.product_id.price %></td>
+                <td><%= product.product_id.discountPercentage %></td>
+                <td><%= product.product_id.stock %></td>
+                <td><%= product.product_id.brand %></td>
+                <td><%= product.product_id.category %></td>
+                <td><img src="<%= product.product_id.thumbnail %> "style='width:100px'/></td>
+                <td>
+                <% if (product && product.product_id.images && product.product_id.images.length) { %>
+                    <% product.product_id.images.forEach(function(image) { %>
+                      <img src="<%= image %>"style='width:80px; height:80px'/>
+                    <% }); %>
+                  <% } else { %>
+                    No images available
+                  <% } %>
+                </td>
+                <td>
+                    <input type="number" name="quantity" min="1" max="10" value="1">
+                </td>
+                <td>
+                  <button type="button" class="btn btn-primary" onclick="order('<%= product.product_id._id %>','<%= product.product_id.price %>','<%= product.product_id.discountPercentage %>')">Order</button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  
+  
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+  
+  <script>
+  $(document).ready(function() {
+    $('#products-table').DataTable();
+  });
+  
+  function order(productId, price, discountPercentage) {
+  const quantity = document.getElementsByName('quantity')[0].value; 
+
+  const data = { product_id: productId, quantity,price,discountPercentage };
+  $.ajax({
+    url: '/orders',
+    type: 'POST',
+    data: {
+        product_id: productId,
+        quantity: quantity,
+        price: price,
+        discountPercentage: discountPercentage
+    },
+    success: function(response) {
+      // Reload the page to update the cart data
+      location.reload();
+    },
+    error: function(xhr, status, error) {
+      console.error(error);
+      alert('Error ordering product'); // Show an error message
+    }
+  });
+}
+
+
+  </script>

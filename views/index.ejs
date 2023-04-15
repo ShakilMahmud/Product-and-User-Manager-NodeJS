@@ -7,7 +7,7 @@
             All Product 
           </h1>
           <p class="fs-4 mb-4">
-            List of all Product
+            <button id="" type="button" class="btn btn-primary" onclick="window.location.href='/dashboard/add-new-product'">Add Product</button>
           </p>
           <% if(data.length < 1 ){ %>
               <a href="/dashboard/add-product" class="btn btn-primary btn-lg">Click to upload the Product!</a>
@@ -26,7 +26,7 @@
           <tbody>
             <% data.forEach(product => { %>
               <tr>
-                <td>1<%= product.title %></td>
+                <td><%= product.title %></td>
                 <td><%= product.brand %></td>
                 <td><%= product.category %></td>
                 <td>
